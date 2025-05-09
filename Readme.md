@@ -174,7 +174,7 @@ CRM Project/
 |-----------|------------------|
 | Frontend  | React + Vite     |
 | Backend   | Spring Boot      |
-| Database  | MySQL (assumed)  |
+| Database  | MySQL            |
 | API Test  | Postman          |
 
 ---
@@ -182,8 +182,8 @@ CRM Project/
 ## 📌 Author
 
 - **Project Name**: CRM Project
-- **Created By**: [Ronit Kumar Sahu]
-- **GitHub Repo**: [https://github.com/ronit0000?tab=repositories]
+- **Created By**: Ronit Kumar Sahu
+- **GitHub Repo**: https://github.com/ronit0000?tab=repositories
 
 ---
 
