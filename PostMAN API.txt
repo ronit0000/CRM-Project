@@ -1,0 +1,69 @@
+1.Customer Data
+
+GET: http://localhost:8080/api/customers/all ----> used to fetch all the data
+
+POST : http://localhost:8080/api/customers/add ----> used to add customer
+
+Update : PUT http://localhost:8080/api/customers/update/1 with updated JSON
+
+Delete : DELETE http://localhost:8080/api/customers/delete/1
+
+2.Support Ticket
+
+GET:
+http://localhost:8080/api/support/open → Should return open tickets.
+http://localhost:8080/api/support/closed → Should return closed tickets.
+http://localhost:8080/api/support/escalations → Should return escalated tickets.
+POST:
+http://localhost:8080/api/support/create -----> POst or create a ticket
+input:
+{
+    "customerName": "Rahul",
+    "issue": "Test issue",
+    "status": "Open"
+}
+
+Update : PUT http://localhost:8080/api/support/update/1 with updated JSON
+
+Delete : DELETE http://localhost:8080/api/support/delete/1
+
+3. Billing
+
+GET
+http://localhost:8080/api/billing/invoices
+http://localhost:8080/api/billing/invoices/pending
+http://localhost:8080/api/billing/invoices/paid
+
+POST
+http://localhost:8080/api/billing/create
+
+{
+    "customerName": "Rahul",
+    "amount": 85.50,
+    "status": "Pending"
+}
+
+Delete the bill : DELETE http://localhost:8080/api/billing/delete/1
+
+Update : PUT http://localhost:8080/api/billing/update/1 with updated JSON.
+
+4 . Network Management :
+
+GET : GET http://localhost:8080/api/network/devices
+GET : GET http://localhost:8080/api/network/devices/online
+ADD : POST http://localhost:8080/api/network/create
+{
+    "deviceName": "Router3",
+    "ipAddress": "192.168.1.5",
+    "status": "Online"
+}
+
+UPDATE : PUT http://localhost:8080/api/network/update/1 with updated JSON
+
+DELETE http://localhost:8080/api/network/delete/1
+
+5. Reports And Analytics :
+
+GET http://localhost:8080/api/reports/customers
+GET http://localhost:8080/api/reports/revenue
+GET http://localhost:8080/api/reports/network
