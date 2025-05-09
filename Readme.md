@@ -49,6 +49,22 @@ CRM Project/
 
 ---
 
+## Setting Up the `customerdb` Database
+
+To set up the MySQL database locally, follow these steps:
+
+### 1. Download the `customerdb.sql` File
+
+Download the `customerdb.sql` file from this repository.
+
+### 2. Create the Database in MySQL
+
+Open your terminal or command prompt and connect to MySQL:
+
+```bash
+mysql -u username -p
+---
+
 ## 📬 API Endpoints for Postman
 
 ### 1. **Customer Data**
