@@ -1,45 +1,68 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar"; // Import the Navbar component
-import SocialLogin from "./SocialLogin"; // Import the SocialLogin component
-import handshake from "./handshake.mp4"; // Import the video
+import Navbar from "./Navbar";
+import SocialLogin from "./SocialLogin";
+import handshake from "./handshake.mp4";
 
 const SignUp = () => {
+  const [name, setName] = useState("");
   const [tempEmail, setTempEmail] = useState("");
   const [tempPassword, setTempPassword] = useState("");
   const [tempPassword2, setTempPassword2] = useState("");
-  const [users, setUsers] = useState([]);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    console.log("handleSignUp called");
-    console.log("Current users:", users);
-    console.log("Email:", tempEmail, "Password:", tempPassword, "Confirm:", tempPassword2);
+    setError("");
 
-    const userExists = users.some((user) => user.email === tempEmail);
-    if (!userExists) {
-      if (tempPassword === tempPassword2) {
-        setUsers([...users, { email: tempEmail, password: tempPassword }]);
-        console.log("Sign Up Successful. New users:", [...users, { email: tempEmail, password: tempPassword }]);
+    if (tempPassword !== tempPassword2) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    const userData = {
+      name,
+      email: tempEmail,
+      password: tempPassword,
+      role: "USER",
+      status: "ACTIVE",
+    };
+
+    console.log("Sending sign-up request:", userData);
+
+    try {
+      const response = await fetch("http://localhost:8080/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+      console.log("Response from backend:", data);
+
+      if (response.ok) {
+        console.log("Sign Up Successful:", data);
+        setName("");
         setTempEmail("");
         setTempPassword("");
         setTempPassword2("");
         navigate("/dashboard");
-        console.log("Navigating to /dashboard");
       } else {
-        console.log("Passwords do not match.");
+        setError(data.message || data || "Failed to register user.");
       }
-    } else {
-      console.log("Email already exists.");
+    } catch (err) {
+      console.error("Error during sign-up:", err);
+      setError("Unable to connect to the server. Please check if the backend is running.");
     }
   };
 
   return (
     <>
       <style>{`
-        /* Import Google Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap');
 
         * {
@@ -49,15 +72,14 @@ const SignUp = () => {
           font-family: "Montserrat", sans-serif;
         }
 
-        /* Ensure Bootstrap doesn't interfere with navbar buttons */
         .navbar .navbar-links .signup-btn,
         .navbar .navbar-links .login-btn {
-          padding: 8px 15px !important; /* Match Navbar.jsx */
-          width: 120px !important; /* Match Navbar.jsx */
-          height: 40px !important; /* Match Navbar.jsx */
+          padding: 8px 15px !important;
+          width: 120px !important;
+          height: 40px !important;
           font-size: 1rem !important;
-          line-height: 1.2 !important; /* Match Navbar.jsx */
-          white-space: nowrap !important; /* Prevent wrapping */
+          line-height: 1.2 !important;
+          white-space: nowrap !important;
         }
 
         body {
@@ -65,8 +87,8 @@ const SignUp = () => {
           align-items: center;
           justify-content: center;
           min-height: 100vh;
-          position: relative; /* Ensure video positioning works */
-          padding-top: 80px; /* Avoid overlap with fixed navbar */
+          position: relative;
+          padding-top: 80px;
         }
 
         .video-background {
@@ -76,32 +98,32 @@ const SignUp = () => {
           width: 100%;
           height: 100%;
           overflow: hidden;
-          z-index: 0; /* Behind all content */
+          z-index: 0;
         }
 
         .video-background video {
           width: 100%;
           height: 100%;
-          object-fit: cover; /* Ensure video covers the entire area */
+          object-fit: cover;
         }
 
         .container {
           max-width: 450px;
-          background: white; /* Solid background to exclude video */
+          background: white;
           padding: 2.5rem;
           border-radius: 10px;
           box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
           position: relative;
-          z-index: 1; /* Above the video */
+          z-index: 1;
         }
 
         .navbar {
-          background: #fff; /* Solid background to exclude video */
+          background: #fff;
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
           position: fixed;
           top: 0;
           width: 100%;
-          z-index: 100; /* Above the video and form */
+          z-index: 100;
         }
 
         h2 {
@@ -168,7 +190,7 @@ const SignUp = () => {
         .social-login {
           display: flex;
           flex-direction: column;
-          gap: 1rem; /* Add gap between buttons */
+          gap: 1rem;
         }
 
         .social-button {
@@ -191,9 +213,15 @@ const SignUp = () => {
           border-color: #5F41E4;
           background: #f1eff9;
         }
+
+        .error-message {
+          color: red;
+          text-align: center;
+          margin-bottom: 15px;
+        }
       `}</style>
 
-      <Navbar /> {/* Add Navbar here */}
+      <Navbar />
       <div className="video-background">
         <video autoPlay loop muted playsInline>
           <source src={handshake} type="video/mp4" />
@@ -204,7 +232,18 @@ const SignUp = () => {
         <h2>Sign Up</h2>
         <SocialLogin />
         <p className="separator"><span>or</span></p>
+        {error && <p className="error-message">{error}</p>}
         <form onSubmit={handleSignUp}>
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="Name"
+              className="form-control"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+            />
+          </div>
           <div className="form-group">
             <input
               type="email"
@@ -212,6 +251,7 @@ const SignUp = () => {
               className="form-control"
               value={tempEmail}
               onChange={(event) => setTempEmail(event.target.value)}
+              required
             />
           </div>
           <div className="form-group">
@@ -221,6 +261,7 @@ const SignUp = () => {
               className="form-control"
               value={tempPassword}
               onChange={(event) => setTempPassword(event.target.value)}
+              required
             />
           </div>
           <div className="form-group">
@@ -230,6 +271,7 @@ const SignUp = () => {
               className="form-control"
               value={tempPassword2}
               onChange={(event) => setTempPassword2(event.target.value)}
+              required
             />
           </div>
           <button type="submit" className="btn btn-primary">
