@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import SocialLogin from "./SocialLogin";
 import InputField from "./InputField";
 import Navbar from "./Navbar"; // Import the Navbar component
+import ForgotPasswordModal from "./ForgotPasswordModal"; // Import the ForgotPasswordModal component
 import logo from "./LogoBg.png"; // Import your logo
 import handshake from "./handshake.mp4"; // Import the video
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false); // State for modal visibility
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -17,6 +19,17 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
     navigate("/dashboard");
+  };
+
+  // Function to open the forgot password modal
+  const openForgotPasswordModal = (e) => {
+    e.preventDefault(); // Prevent default link behavior
+    setShowForgotPasswordModal(true);
+  };
+
+  // Function to close the forgot password modal
+  const closeForgotPasswordModal = () => {
+    setShowForgotPasswordModal(false);
   };
 
   return (
@@ -258,7 +271,7 @@ const Login = () => {
             </span>
           </div>
 
-          <a href="#" className="forgot-password-link">Forgot password?</a>
+          <a href="#" className="forgot-password-link" onClick={openForgotPasswordModal}>Forgot password?</a>
           <button type="submit" className="login-button">Log In</button>
         </form>
 
@@ -269,6 +282,9 @@ const Login = () => {
           </a>
         </p>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal show={showForgotPasswordModal} onClose={closeForgotPasswordModal} />
     </>
   );
 };

@@ -5,6 +5,17 @@ import Sidebar from "./Sidebar";
 const Settings = () => {
   const [collapsed, setCollapsed] = useState(window.innerWidth <= 1024);
   const [users, setUsers] = useState([]);
+  const [showAddUserForm, setShowAddUserForm] = useState(false);
+  const [showEditUserForm, setShowEditUserForm] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: "",
+    role: "User",
+    email: "",
+    password: "",
+  });
+  const [editUser, setEditUser] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -16,38 +27,89 @@ const Settings = () => {
   }, [location.pathname, navigate]);
 
   const fetchUsers = async () => {
+    setLoading(true);
+    setError("");
     try {
       const response = await fetch("http://localhost:8080/api/settings/users");
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch users: ${response.status} - ${errorText}`);
+      }
       const data = await response.json();
       setUsers(data);
     } catch (error) {
-      console.error("Failed to fetch users:", error);
+      console.error("Failed to fetch users:", error.message);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const addUser = async () => {
-    const newUser = { name: "New User", role: "User" }; // Example data
+  const addUser = async (e) => {
+    e.preventDefault();
+    setError("");
     try {
       const response = await fetch("http://localhost:8080/api/settings/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newUser),
       });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to add user: ${response.status} - ${errorText}`);
+      }
       const addedUser = await response.json();
       setUsers([...users, addedUser]);
+      setShowAddUserForm(false);
+      setNewUser({ name: "", role: "User", email: "", password: "" });
     } catch (error) {
-      console.error("Failed to add user:", error);
+      console.error("Failed to add user:", error.message);
+      setError(error.message);
+    }
+  };
+
+  const editUserForm = (user) => {
+    setEditUser(user);
+    setShowEditUserForm(true);
+  };
+
+  const updateUser = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const response = await fetch(`http://localhost:8080/api/settings/users/${editUser.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editUser),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update user: ${response.status} - ${errorText}`);
+      }
+      const updatedUser = await response.json();
+      setUsers(users.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+      setShowEditUserForm(false);
+      setEditUser(null);
+    } catch (error) {
+      console.error("Failed to update user:", error.message);
+      setError(error.message);
     }
   };
 
   const deleteUser = async (id) => {
     try {
-      await fetch(`http://localhost:8080/api/settings/users/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/settings/users/${id}`, {
         method: "DELETE",
       });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete user: ${response.status} - ${errorText}`);
+      }
       setUsers(users.filter((user) => user.id !== id));
+      setError("");
     } catch (error) {
-      console.error("Failed to delete user:", error);
+      console.error("Failed to delete user:", error.message);
+      setError(error.message);
     }
   };
 
@@ -57,35 +119,182 @@ const Settings = () => {
         return (
           <div style={styles.section}>
             <h2>User Management</h2>
-            <button style={styles.button} onClick={addUser}>
+            <button style={styles.button} onClick={() => setShowAddUserForm(true)}>
               Add User
             </button>
+            {error && <p style={styles.error}>{error}</p>}
+            {loading && <p>Loading users...</p>}
+            {showAddUserForm && (
+              <form onSubmit={addUser} style={styles.form}>
+                <label style={styles.label}>
+                  Name:
+                  <input
+                    type="text"
+                    style={styles.input}
+                    value={newUser.name}
+                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                    required
+                  />
+                </label>
+                <label style={styles.label}>
+                  Role:
+                  <select
+                    style={styles.input}
+                    value={newUser.role}
+                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                    required
+                  >
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </label>
+                <label style={styles.label}>
+                  Email:
+                  <input
+                    type="email"
+                    style={styles.input}
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    required
+                  />
+                </label>
+                <label style={styles.label}>
+                  Password:
+                  <input
+                    type="password"
+                    style={styles.input}
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    required
+                  />
+                </label>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button type="submit" style={styles.button}>
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    style={styles.button}
+                    onClick={() => setShowAddUserForm(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+            {showEditUserForm && editUser && (
+              <form onSubmit={updateUser} style={styles.form}>
+                <label style={styles.label}>
+                  Name:
+                  <input
+                    type="text"
+                    style={styles.input}
+                    value={editUser.name}
+                    onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
+                    required
+                  />
+                </label>
+                <label style={styles.label}>
+                  Role:
+                  <select
+                    style={styles.input}
+                    value={editUser.role}
+                    onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
+                    required
+                  >
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </label>
+                <label style={styles.label}>
+                  Status:
+                  <select
+                    style={styles.input}
+                    value={editUser.status}
+                    onChange={(e) => setEditUser({ ...editUser, status: e.target.value })}
+                    required
+                  >
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
+                  </select>
+                </label>
+                <label style={styles.label}>
+                  Email:
+                  <input
+                    type="email"
+                    style={styles.input}
+                    value={editUser.email}
+                    onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
+                    required
+                  />
+                </label>
+                <label style={styles.label}>
+                  Password:
+                  <input
+                    type="password"
+                    style={styles.input}
+                    value={editUser.password}
+                    onChange={(e) => setEditUser({ ...editUser, password: e.target.value })}
+                    required
+                  />
+                </label>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button type="submit" style={styles.button}>
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    style={styles.button}
+                    onClick={() => setShowEditUserForm(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
             <table style={styles.table}>
               <thead>
                 <tr>
                   <th style={styles.th}>ID</th>
                   <th style={styles.th}>Name</th>
                   <th style={styles.th}>Role</th>
+                  <th style={styles.th}>Status</th>
+                  <th style={styles.th}>Email</th>
                   <th style={styles.th}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td style={styles.td}>{user.id}</td>
-                    <td style={styles.td}>{user.name}</td>
-                    <td style={styles.td}>{user.role}</td>
-                    <td style={styles.td}>
-                      <button style={styles.actionButton}>Edit</button>
-                      <button
-                        style={styles.actionButton}
-                        onClick={() => deleteUser(user.id)}
-                      >
-                        Delete
-                      </button>
+                {users.length === 0 && !loading && !error ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: "center", padding: "10px" }}>
+                      No users found
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  users.map((user) => (
+                    <tr key={user.id}>
+                      <td style={styles.td}>{user.id}</td>
+                      <td style={styles.td}>{user.name}</td>
+                      <td style={styles.td}>{user.role}</td>
+                      <td style={styles.td}>{user.status}</td>
+                      <td style={styles.td}>{user.email}</td>
+                      <td style={styles.td}>
+                        <button
+                          style={styles.actionButton}
+                          onClick={() => editUserForm(user)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          style={styles.actionButton}
+                          onClick={() => deleteUser(user.id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -213,6 +422,7 @@ const styles = {
     flexDirection: "column",
     gap: "15px",
     marginTop: "20px",
+    marginBottom: "20px",
   },
   label: {
     display: "flex",
@@ -237,6 +447,10 @@ const styles = {
     alignItems: "center",
     gap: "10px",
     fontSize: "14px",
+  },
+  error: {
+    color: "red",
+    marginBottom: "10px",
   },
 };
 
