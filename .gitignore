@@ -1,0 +1,14 @@
+# Frontend (React + Vite)
+reactapp/node_modules
+reactapp/dist
+
+# Backend (Spring Boot)
+EaseConnect/target
+
+# IDE & OS files
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
