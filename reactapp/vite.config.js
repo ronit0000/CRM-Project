@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/CRM-Project/', // Add this line for correct asset paths
+  base: '/CRM-Project/reactapp/', // Add this line for correct asset paths
 })
