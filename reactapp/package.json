@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "/CRM-Project/reactapp/",
+  "homepage": "https://ronitgithub.github.io/CRM-Project/reactapp/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
