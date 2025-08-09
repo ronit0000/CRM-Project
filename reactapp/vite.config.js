@@ -2,7 +2,8 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
+// vite.config.js
 export default defineConfig({
+  base: "/CRM-Project/",
   plugins: [react()],
-  base: '/CRM-Project/reactapp/', // Add this line for correct asset paths
-})
+});

@@ -1,4 +1,4 @@
-name: Deploy React App to GitHub Pages
+name: Deploy React Vite App to GitHub Pages
 
 on:
   push:
@@ -10,6 +10,9 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: reactapp  # 👈 all commands run inside reactapp folder
 
     steps:
       - name: Checkout repository
@@ -26,14 +29,9 @@ jobs:
       - name: Build the project
         run: npm run build
 
-      - name: Configure Git identity
-        run: |
-          git config --global user.name "ronit0000"
-          git config --global user.email "ronitkusahu@gmail.com"
-
-      - name: Authenticate and deploy to GitHub Pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
-          npm run deploy
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
