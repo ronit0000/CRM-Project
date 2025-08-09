@@ -6,9 +6,9 @@
   "homepage": "https://ronit0000.github.io/CRM-Project/",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages --no-history -d dist"
+    "build": "cd reactapp && npm install && npm run build",
+    "deploy": "git subtree push --prefix reactapp/dist origin gh-pages",
+    "predeploy": "npm run build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
